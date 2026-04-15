@@ -274,6 +274,78 @@ public class NhanVien extends Nguoi {
         return ds;
     }
 
+    public void capNhatSQL() {
+        String sql = "UPDATE NhanVien SET hoTen=?, soDienThoai=?, diaChi=?, ngaySinh=?, email=?, cccd=?, chucVu=?, luong=?, gioVaoLam=?, gioKetThuc=? WHERE maDinhDanh=?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1,  hoTen);
+            ps.setString(2,  soDienThoai);
+            ps.setString(3,  diaChi);
+            ps.setString(4,  ngaySinh.format(DATE_FMT));
+            ps.setString(5,  email);
+            ps.setString(6,  cccd);
+            ps.setString(7,  chucVu);
+            ps.setDouble(8,  luong);
+            ps.setTime(9,   java.sql.Time.valueOf(gioVaoLam));
+            ps.setTime(10,   java.sql.Time.valueOf(gioKetThuc));
+            ps.setString(11, maDinhDanh);
+            ps.executeUpdate();
+            System.out.println("Cập nhật nhân viên thành công! Mã: " + maDinhDanh);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void xoaKhoiSQL(String maDinhDanh) {
+        String sql = "DELETE FROM NhanVien WHERE maDinhDanh=?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maDinhDanh);
+            ps.executeUpdate();
+            System.out.println("Xóa nhân viên thành công! Mã: " + maDinhDanh);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static List<NhanVien> timKiemSQL(String keyword) {
+        List<NhanVien> ds = new ArrayList<>();
+        String sql = "SELECT * FROM NhanVien WHERE hoTen LIKE ? OR maDinhDanh LIKE ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            ps.setString(2, "%" + keyword + "%");
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    NhanVien nv = new NhanVien();
+                    nv.maDinhDanh = rs.getString(1);
+                    nv.hoTen = rs.getString(2);
+                    nv.soDienThoai = rs.getString(3);
+                    nv.diaChi = rs.getString(4);
+                    
+                    String ngayStr = rs.getString(5);
+                    if (ngayStr != null) nv.ngaySinh = LocalDate.parse(ngayStr, DATE_FMT);
+                    
+                    nv.email = rs.getString(6);
+                    nv.cccd = rs.getString(7);
+                    nv.chucVu = rs.getString(8);
+                    nv.luong = rs.getDouble(9);
+                    
+                    java.sql.Time vaoLam = rs.getTime(10);
+                    if (vaoLam != null) nv.gioVaoLam = vaoLam.toLocalTime();
+                    
+                    java.sql.Time ketThuc = rs.getTime(11);
+                    if (ketThuc != null) nv.gioKetThuc = ketThuc.toLocalTime();
+                    
+                    ds.add(nv);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ds;
+    }
+
     // ===== Tiện ích =====
     private void nhapCoRangBuoc(Scanner sc, String label, java.util.function.Consumer<String> setter) {
         while (true) {

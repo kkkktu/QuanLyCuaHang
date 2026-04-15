@@ -99,15 +99,19 @@ public class KhachHang extends Nguoi {
     // ===== SQL =====
     @Override
     public void luuVaoSQL() {
-        /*
-         * String sql = "INSERT INTO KhachHang VALUES (?,?,?,?,?)";
-         * ps.setString(1, maDinhDanh);
-         * ps.setString(2, hoTen);
-         * ps.setString(3, soDienThoai);
-         * ps.setString(4, diaChi);
-         * ps.setInt(5, diemTichLuy);
-         */
-        System.out.println("Lưu khách hàng vào SQL... Mã: " + maDinhDanh);
+        String sql = "INSERT INTO KhachHang VALUES (?,?,?,?,?)";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maDinhDanh);
+            ps.setString(2, hoTen);
+            ps.setString(3, soDienThoai);
+            ps.setString(4, diaChi);
+            ps.setInt(5, diemTichLuy);
+            ps.executeUpdate();
+            System.out.println("Lưu khách hàng thành công! Mã: " + maDinhDanh);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static List<KhachHang> docTuSQL() {
@@ -130,6 +134,58 @@ public class KhachHang extends Nguoi {
         }
         System.out.println("Đọc danh sách khách hàng từ SQL thành công.");
         return danhSach;
+    }
+
+    public void capNhatSQL() {
+        String sql = "UPDATE KhachHang SET hoTen=?, soDienThoai=?, diaChi=?, diemTichLuy=? WHERE maDinhDanh=?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, hoTen);
+            ps.setString(2, soDienThoai);
+            ps.setString(3, diaChi);
+            ps.setInt(4, diemTichLuy);
+            ps.setString(5, maDinhDanh);
+            ps.executeUpdate();
+            System.out.println("Cập nhật khách hàng thành công! Mã: " + maDinhDanh);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void xoaKhoiSQL(String maDinhDanh) {
+        String sql = "DELETE FROM KhachHang WHERE maDinhDanh=?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maDinhDanh);
+            ps.executeUpdate();
+            System.out.println("Xóa khách hàng thành công! Mã: " + maDinhDanh);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static List<KhachHang> timKiemSQL(String keyword) {
+        List<KhachHang> ds = new ArrayList<>();
+        String sql = "SELECT * FROM KhachHang WHERE hoTen LIKE ? OR maDinhDanh LIKE ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            ps.setString(2, "%" + keyword + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    KhachHang kh = new KhachHang();
+                    kh.maDinhDanh = rs.getString(1);
+                    kh.hoTen = rs.getString(2);
+                    kh.soDienThoai = rs.getString(3);
+                    kh.diaChi = rs.getString(4);
+                    kh.diemTichLuy = rs.getInt(5);
+                    ds.add(kh);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ds;
     }
 
     // ===== Tiện ích nhập có vòng lặp kiểm tra =====
