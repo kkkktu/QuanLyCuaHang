@@ -14,8 +14,8 @@ public class Main {
 
         // Chạy GUI trong luồng an toàn của Swing
         SwingUtilities.invokeLater(() -> {
-            MainFrame frame = new MainFrame();
-            frame.setVisible(true);
+            GUI.LoginFrame loginFrame = new GUI.LoginFrame();
+            loginFrame.setVisible(true);
         });
     }
 }
