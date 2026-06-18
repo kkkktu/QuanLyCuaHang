@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Run Biluxury Main",
+            "request": "launch",
+            "mainClass": "GUI.Main",
+            "projectName": "BiluxuryProject_Model_WithMain",
+            "vmArgs": "-Dfile.encoding=UTF-8"
+        }
+    ]
+}
